@@ -77,7 +77,7 @@ document.addEventListener('DOMContentLoaded', function() {
             if (data.status === 1) {
                 const product = data.product;
                 
-                // Get price estimate from Mistral
+                // Get price estimate from Groq
                 const priceEstimate = await getEUPriceEstimate(product);
                 
                 resultDiv.innerHTML = `
@@ -128,7 +128,7 @@ Please provide:
 2. Your confidence level (low/medium/high)
 3. Base your estimate on 2024 supermarket prices
 
-Respond in this exact JSON format:
+Respond in this exact JSON format without any additional text:
 {
   "price_range_eur": {"min": X.XX, "max": X.XX},
   "confidence": "medium",
@@ -136,20 +136,25 @@ Respond in this exact JSON format:
   "notes": "Brief explanation of estimate"
 }`;
 
-            const response = await fetch('https://api.mistral.ai/v1/chat/completions', {
+            const response = await fetch('https://api.groq.com/v1/chat/completions', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                    'Authorization': 'Bearer pEbMsNjRZKiqvBvr39v13cOAoEqwsmWx'  // Replace with your API key
+                    'Authorization': 'Bearer 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'  // Replace with your Groq API key
                 },
                 body: JSON.stringify({
-                    model: "mistral-tiny",
+                    model: "mixtral-8x7b-32768",
                     messages: [
+                        {
+                            role: "system",
+                            content: "You are a European price database expert. Always respond with valid JSON only."
+                        },
                         {
                             role: "user",
                             content: prompt
                         }
                     ],
+                    temperature: 0.1,
                     response_format: { type: "json_object" }
                 })
             });
