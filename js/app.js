@@ -22,11 +22,32 @@ document.addEventListener('DOMContentLoaded', function() {
                 type: "LiveStream",
                 target: document.querySelector("#interactive"),
                 constraints: {
-                    facingMode: "environment"
+                    facingMode: "environment",
+                    width: 1280,
+                    height: 720,
                 },
             },
+            locate: true,
+            numOfWorkers: navigator.hardwareConcurrency || 4,
             decoder: {
-                readers: ["ean_reader", "ean_8_reader", "upc_reader", "upc_e_reader"]
+                readers: [
+                    "ean_reader",
+                    "ean_8_reader",
+                    "upc_reader",
+                    "upc_e_reader"
+                ],
+                debug: {
+                    drawBoundingBox: true,
+                    showFrequency: true,
+                    drawScanline: true,
+                    showPattern: true
+                },
+                multiple: false
+            },
+            frequency: 10,
+            locator: {
+                patchSize: "medium",
+                halfSample: true
             }
         }, function(err) {
             if (err) {
@@ -37,9 +58,48 @@ document.addEventListener('DOMContentLoaded', function() {
             Quagga.start();
         });
 
+        Quagga.onProcessed(function(result) {
+            const drawingCtx = Quagga.canvas.ctx.overlay;
+            const drawingCanvas = Quagga.canvas.dom.overlay;
+
+            if (result) {
+                if (result.boxes) {
+                    drawingCtx.clearRect(0, 0, drawingCanvas.width, drawingCanvas.height);
+                    result.boxes.filter(function(box) {
+                        return box !== result.box;
+                    }).forEach(function(box) {
+                        Quagga.ImageDebug.drawPath(box, { x: 0, y: 1 }, drawingCtx, { color: "yellow", lineWidth: 2 });
+                    });
+                }
+
+                if (result.box) {
+                    Quagga.ImageDebug.drawPath(result.box, { x: 0, y: 1 }, drawingCtx, { color: "green", lineWidth: 2 });
+                }
+
+                if (result.codeResult && result.codeResult.code) {
+                    Quagga.ImageDebug.drawPath(result.line, { x: 'x', y: 'y' }, drawingCtx, { color: "red", lineWidth: 3 });
+                }
+            }
+        });
+
+        let lastResult = null;
         Quagga.onDetected(function(result) {
             const code = result.codeResult.code;
-            fetchProductInfo(code);
+            
+            // Prevent duplicate scans
+            if (lastResult !== code) {
+                lastResult = code;
+                
+                // Provide feedback
+                navigator.vibrate && navigator.vibrate(100);
+                
+                // Check code format
+                if (code.length >= 8) {
+                    fetchProductInfo(code);
+                } else {
+                    resultDiv.innerHTML = "Invalid barcode detected. Please try scanning again.";
+                }
+            }
         });
     }
 
