@@ -1,11 +1,13 @@
 document.addEventListener('DOMContentLoaded', function() {
     const startButton = document.getElementById('start-button');
+    const video = document.getElementById('video');
     const resultDiv = document.getElementById('product-info');
     let isScanning = false;
+    let codeReader;
 
     startButton.addEventListener('click', function() {
         if (isScanning) {
-            Quagga.stop();
+            stopScanner();
             startButton.textContent = 'Start Scanner';
             isScanning = false;
         } else {
@@ -15,92 +17,43 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 
-    function startScanner() {
-        Quagga.init({
-            inputStream: {
-                name: "Live",
-                type: "LiveStream",
-                target: document.querySelector("#interactive"),
-                constraints: {
-                    facingMode: "environment",
-                    width: 1280,
-                    height: 720,
-                },
-            },
-            locate: true,
-            numOfWorkers: navigator.hardwareConcurrency || 4,
-            decoder: {
-                readers: [
-                    "ean_reader",
-                    "ean_8_reader",
-                    "upc_reader",
-                    "upc_e_reader"
-                ],
-                debug: {
-                    drawBoundingBox: true,
-                    showFrequency: true,
-                    drawScanline: true,
-                    showPattern: true
-                },
-                multiple: false
-            },
-            frequency: 10,
-            locator: {
-                patchSize: "medium",
-                halfSample: true
-            }
-        }, function(err) {
-            if (err) {
-                console.error(err);
-                alert("Error starting scanner: " + err);
-                return;
-            }
-            Quagga.start();
-        });
+    async function startScanner() {
+        try {
+            codeReader = new ZXing.BrowserMultiFormatReader();
+            const videoConstraints = {
+                facingMode: 'environment'
+            };
 
-        Quagga.onProcessed(function(result) {
-            const drawingCtx = Quagga.canvas.ctx.overlay;
-            const drawingCanvas = Quagga.canvas.dom.overlay;
-
-            if (result) {
-                if (result.boxes) {
-                    drawingCtx.clearRect(0, 0, drawingCanvas.width, drawingCanvas.height);
-                    result.boxes.filter(function(box) {
-                        return box !== result.box;
-                    }).forEach(function(box) {
-                        Quagga.ImageDebug.drawPath(box, { x: 0, y: 1 }, drawingCtx, { color: "yellow", lineWidth: 2 });
-                    });
+            // Start continuous scanning
+            codeReader.decodeFromConstraints(
+                { video: videoConstraints },
+                video,
+                async (result, error) => {
+                    if (result) {
+                        // Provide feedback
+                        navigator.vibrate && navigator.vibrate(100);
+                        
+                        const barcode = result.getText();
+                        if (barcode && barcode.length >= 8) {
+                            await fetchProductInfo(barcode);
+                        }
+                    }
+                    if (error && !(error instanceof ZXing.NotFoundException)) {
+                        console.error(error);
+                    }
                 }
+            );
+        } catch (error) {
+            console.error('Error starting scanner:', error);
+            alert('Error starting scanner: ' + error.message);
+        }
+    }
 
-                if (result.box) {
-                    Quagga.ImageDebug.drawPath(result.box, { x: 0, y: 1 }, drawingCtx, { color: "green", lineWidth: 2 });
-                }
-
-                if (result.codeResult && result.codeResult.code) {
-                    Quagga.ImageDebug.drawPath(result.line, { x: 'x', y: 'y' }, drawingCtx, { color: "red", lineWidth: 3 });
-                }
-            }
-        });
-
-        let lastResult = null;
-        Quagga.onDetected(function(result) {
-            const code = result.codeResult.code;
-            
-            // Prevent duplicate scans
-            if (lastResult !== code) {
-                lastResult = code;
-                
-                // Provide feedback
-                navigator.vibrate && navigator.vibrate(100);
-                
-                // Check code format
-                if (code.length >= 8) {
-                    fetchProductInfo(code);
-                } else {
-                    resultDiv.innerHTML = "Invalid barcode detected. Please try scanning again.";
-                }
-            }
-        });
+    function stopScanner() {
+        if (codeReader) {
+            codeReader.reset();
+            video.srcObject = null;
+        }
     }
 
     async function fetchProductInfo(barcode) {
