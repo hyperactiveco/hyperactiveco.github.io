@@ -150,7 +150,7 @@ Respond in this exact JSON format without any additional text:
   "notes": "Brief explanation of estimate"
 }`;
 
-            const response = await fetch('https://api.groq.com/v1/chat/completions', {
+            const response = await fetch('https://api.groq.app/v1/chat/completions', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -177,6 +177,11 @@ Respond in this exact JSON format without any additional text:
             console.log('Groq API response:', responseText);
 
             if (!response.ok) {
+                console.error('Groq API error details:', {
+                    status: response.status,
+                    statusText: response.statusText,
+                    response: responseText
+                });
                 throw new Error(`Groq API error: ${response.status} - ${responseText}`);
             }
 
