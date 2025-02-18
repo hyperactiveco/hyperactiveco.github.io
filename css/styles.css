@@ -134,4 +134,36 @@ h1 {
     font-style: italic;
     margin-top: 10px;
     font-size: 0.9em;
+}
+
+.price-estimate {
+    margin-top: 15px;
+    padding: 10px;
+    background-color: #f8f9fa;
+    border-radius: 6px;
+    border-left: 4px solid #007bff;
+}
+
+.price-estimate .price-range {
+    font-size: 1.2em;
+    font-weight: bold;
+    color: #2c3e50;
+    margin-bottom: 8px;
+}
+
+.price-estimate .confidence {
+    color: #666;
+    font-size: 0.9em;
+}
+
+.price-estimate .source {
+    color: #666;
+    font-size: 0.8em;
+    font-style: italic;
+}
+
+.price-estimate .note {
+    margin-top: 8px;
+    color: #495057;
+    font-size: 0.9em;
 } 
