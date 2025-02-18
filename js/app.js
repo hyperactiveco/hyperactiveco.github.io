@@ -67,20 +67,33 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
+    // Prevent viewport jumping by maintaining a fixed height
+    let lastResultHeight = 0;
+    function updateResultWithFixedHeight(html) {
+        const tempDiv = document.createElement('div');
+        tempDiv.innerHTML = html;
+        const newHeight = Math.max(tempDiv.offsetHeight, lastResultHeight);
+        resultDiv.style.minHeight = `${newHeight}px`;
+        resultDiv.innerHTML = html;
+        lastResultHeight = newHeight;
+    }
+
     async function fetchProductInfo(barcode) {
         try {
-            resultDiv.innerHTML = `<div class="searching">Searching for barcode: ${barcode}...</div>`;
+            updateResultWithFixedHeight(`<div class="searching">Searching for barcode: ${barcode}...</div>`);
             
             const response = await fetch(`https://world.openfoodfacts.org/api/v0/product/${barcode}.json`);
             const data = await response.json();
 
             if (data.status === 1) {
                 const product = data.product;
+                console.log('Found product:', product);
                 
                 // Get price estimate from Groq
                 const priceEstimate = await getEUPriceEstimate(product);
+                console.log('Price estimate result:', priceEstimate);
                 
-                resultDiv.innerHTML = `
+                updateResultWithFixedHeight(`
                     <div class="product-found">
                         <h3>${product.product_name || 'Unknown Product'}</h3>
                         <p class="barcode">Barcode: ${barcode}</p>
@@ -93,31 +106,32 @@ document.addEventListener('DOMContentLoaded', function() {
                                 <p class="source">Source: AI Estimate (${priceEstimate.reference_country})</p>
                                 <p class="note">${priceEstimate.notes}</p>
                             </div>
-                        ` : ''}
+                        ` : '<p class="error">Could not estimate price</p>'}
                         ${product.image_url ? `<img src="${product.image_url}" alt="${product.product_name}" style="max-width: 200px;">` : ''}
                     </div>
-                `;
+                `);
             } else {
-                resultDiv.innerHTML = `
+                updateResultWithFixedHeight(`
                     <div class="product-not-found">
                         <p>Product not found for barcode: ${barcode}</p>
                         <p class="tip">Tip: Try scanning again or make sure the barcode is clear and well-lit.</p>
                     </div>
-                `;
+                `);
             }
         } catch (error) {
             console.error('Error fetching product:', error);
-            resultDiv.innerHTML = `
+            updateResultWithFixedHeight(`
                 <div class="error">
                     <p>Error fetching product information: ${error.message}</p>
                     <p class="tip">Please check your internet connection and try again.</p>
                 </div>
-            `;
+            `);
         }
     }
 
     async function getEUPriceEstimate(product) {
         try {
+            console.log('Requesting price estimate for:', product.product_name);
             const prompt = `You are a European price database expert. Given this product:
 Product: ${product.product_name || 'Unknown'}
 Brand: ${product.brands || 'Unknown'}
@@ -140,7 +154,7 @@ Respond in this exact JSON format without any additional text:
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                    'Authorization': 'Bearer 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'  // Replace with your Groq API key
+                    'Authorization': 'Bearer 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'
                 },
                 body: JSON.stringify({
                     model: "mixtral-8x7b-32768",
@@ -159,14 +173,19 @@ Respond in this exact JSON format without any additional text:
                 })
             });
 
+            const responseText = await response.text();
+            console.log('Groq API response:', responseText);
+
             if (!response.ok) {
-                throw new Error('Failed to get price estimate');
+                throw new Error(`Groq API error: ${response.status} - ${responseText}`);
             }
 
-            const result = await response.json();
-            return JSON.parse(result.choices[0].message.content);
+            const result = JSON.parse(responseText);
+            const priceEstimate = JSON.parse(result.choices[0].message.content);
+            console.log('Parsed price estimate:', priceEstimate);
+            return priceEstimate;
         } catch (error) {
-            console.error('Error getting price estimate:', error);
+            console.error('Detailed error getting price estimate:', error);
             return null;
         }
     }
