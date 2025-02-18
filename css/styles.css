@@ -61,4 +61,77 @@ h1 {
 #interactive.viewport > canvas {
     max-width: 100%;
     width: 100%;
+}
+
+.status {
+    text-align: center;
+    padding: 10px;
+    margin-bottom: 10px;
+    background-color: #f8f9fa;
+    border-radius: 4px;
+    font-weight: bold;
+    color: #495057;
+}
+
+.status.scanning {
+    background-color: #e3f2fd;
+    color: #0d47a1;
+}
+
+.status.recognized {
+    background-color: #e8f5e9;
+    color: #1b5e20;
+}
+
+.product-found {
+    background-color: #fff;
+    padding: 15px;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.product-found h3 {
+    margin-top: 0;
+    color: #2c3e50;
+}
+
+.product-found .barcode {
+    color: #666;
+    font-family: monospace;
+    background: #f8f9fa;
+    padding: 5px 10px;
+    border-radius: 4px;
+    display: inline-block;
+}
+
+.product-found .brand,
+.product-found .quantity {
+    margin: 8px 0;
+    color: #34495e;
+}
+
+.product-not-found {
+    background-color: #fff3cd;
+    color: #856404;
+    padding: 15px;
+    border-radius: 8px;
+}
+
+.error {
+    background-color: #f8d7da;
+    color: #721c24;
+    padding: 15px;
+    border-radius: 8px;
+}
+
+.searching {
+    text-align: center;
+    color: #666;
+    padding: 20px;
+}
+
+.tip {
+    font-style: italic;
+    margin-top: 10px;
+    font-size: 0.9em;
 } 
