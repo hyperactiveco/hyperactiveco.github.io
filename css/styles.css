@@ -1,69 +1,46 @@
 body {
     margin: 0;
-    padding: 10px;
+    padding: 20px;
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
-    background-color: #f8f9fa;
 }
 
 .container {
     max-width: 800px;
     margin: 0 auto;
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-    height: 100vh;
 }
 
 h1 {
     text-align: center;
     color: #333;
-    font-size: 1.5em;
-    margin: 5px 0;
 }
 
 .viewport {
     width: 100%;
-    height: 200px;
+    height: 300px;
     position: relative;
     border: 2px solid #333;
-    border-radius: 8px;
-    overflow: hidden;
-    background-color: #000;
-}
-
-.scanner-container {
-    position: sticky;
-    top: 0;
-    z-index: 10;
-    background-color: #f8f9fa;
-    padding: 5px;
-    border-radius: 8px;
-    margin-bottom: 10px;
+    margin-bottom: 20px;
+    object-fit: cover;
 }
 
 .result-container {
-    flex: 1;
-    overflow-y: auto;
+    margin-top: 20px;
     padding: 10px;
     border: 1px solid #ccc;
-    border-radius: 8px;
-    background-color: white;
-    margin-bottom: 10px;
+    border-radius: 4px;
+    min-height: 100px;
 }
 
 #start-button {
     display: block;
-    width: 100%;
-    max-width: 200px;
-    margin: 10px auto;
-    padding: 12px 20px;
+    margin: 20px auto;
+    padding: 10px 20px;
     font-size: 16px;
     background-color: #007bff;
     color: white;
     border: none;
-    border-radius: 8px;
+    border-radius: 4px;
     cursor: pointer;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
 }
 
 #start-button:hover {
@@ -88,13 +65,12 @@ h1 {
 
 .status {
     text-align: center;
-    padding: 8px;
-    margin: 5px 0;
+    padding: 10px;
+    margin-bottom: 10px;
     background-color: #f8f9fa;
-    border-radius: 8px;
+    border-radius: 4px;
     font-weight: bold;
     color: #495057;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
 }
 
 .status.scanning {
@@ -157,37 +133,5 @@ h1 {
 .tip {
     font-style: italic;
     margin-top: 10px;
-    font-size: 0.9em;
-}
-
-.price-estimate {
-    margin-top: 15px;
-    padding: 10px;
-    background-color: #f8f9fa;
-    border-radius: 6px;
-    border-left: 4px solid #007bff;
-}
-
-.price-estimate .price-range {
-    font-size: 1.2em;
-    font-weight: bold;
-    color: #2c3e50;
-    margin-bottom: 8px;
-}
-
-.price-estimate .confidence {
-    color: #666;
-    font-size: 0.9em;
-}
-
-.price-estimate .source {
-    color: #666;
-    font-size: 0.8em;
-    font-style: italic;
-}
-
-.price-estimate .note {
-    margin-top: 8px;
-    color: #495057;
     font-size: 0.9em;
 } 

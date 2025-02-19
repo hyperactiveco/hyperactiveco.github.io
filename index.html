@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Kosovo Price Checker - ZXing</title>
     <link rel="stylesheet" href="css/styles.css">
     <script src="https://unpkg.com/@zxing/library@latest"></script>
@@ -11,15 +11,14 @@
     <div class="container">
         <h1>Kosovo Price Checker</h1>
         
-        <div class="result-container">
+        <div id="status" class="status">Ready to scan</div>
+        <video id="video" class="viewport"></video>
+        
+        <div id="result" class="result-container">
             <div id="product-info"></div>
         </div>
 
-        <div class="scanner-container">
-            <div id="status" class="status">Ready to scan</div>
-            <video id="video" class="viewport"></video>
-            <button id="start-button">Start Scanner</button>
-        </div>
+        <button id="start-button">Start Scanner</button>
     </div>
 
     <script src="js/app.js"></script>
